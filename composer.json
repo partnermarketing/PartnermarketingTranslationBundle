@@ -1,0 +1,16 @@
+{
+    "name": "partnermarketing/translation-bundle",
+    "description": "A translation component supporting different translation adapters -- by default, OneSky.",
+    "autoload": {
+        "psr-4": { "Partnermarketing\\TranslationBundle\\": "src/" }
+    },
+    "require": {
+        "php": ">=5.4.0",
+        "amyboyd/onesky-api-client": "~0.1"
+    },
+    "require-dev": {
+        "symfony/symfony": "2.4.*",
+        "phpunit/phpunit": ">=3.7",
+        "johnkary/phpunit-speedtrap": "dev-master"
+    }
+}
