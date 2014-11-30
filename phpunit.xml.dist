@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    backupGlobals               = "false"
+    backupStaticAttributes      = "false"
+    colors                      = "true"
+    convertErrorsToExceptions   = "true"
+    convertNoticesToExceptions  = "true"
+    convertWarningsToExceptions = "true"
+    processIsolation            = "false"
+    stopOnFailure               = "false"
+    syntaxCheck                 = "false"
+    bootstrap                   = "vendor/autoload.php" >
+
+    <testsuites>
+        <testsuite name="Project Test Suite">
+           <directory>src/Tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <listeners>
+        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener">
+            <arguments>
+                <array>
+                    <!-- Slowness threshold in ms. -->
+                    <element key="slowThreshold">
+                        <integer>50</integer>
+                    </element>
+                    <!-- Number of slow tests to report on. -->
+                    <element key="reportLength">
+                        <integer>10</integer>
+                    </element>
+                </array>
+            </arguments>
+        </listener>
+    </listeners>
+</phpunit>
