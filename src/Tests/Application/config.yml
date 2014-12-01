@@ -1,0 +1,10 @@
+parameters:
+    kernel.secret: 123
+    debug.error_handler.throw_at: a
+
+partnermarketing_translation:
+    supported_languages: [en]
+    one_sky:
+        project_id: 111
+        api_key: 222
+        api_secret: 333

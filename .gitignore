@@ -1,3 +1,5 @@
 /vendor
 /composer.phar
 /composer.lock
+/src/Tests/Application/cache
+/src/Tests/Application/logs

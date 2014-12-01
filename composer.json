@@ -6,10 +6,11 @@
     },
     "require": {
         "php": ">=5.4.0",
-        "amyboyd/onesky-api-client": "~0.1"
+        "amyboyd/onesky-api-client": "~0.1",
+        "partnermarketing/file-system-bundle": "~0.2.0"
     },
     "require-dev": {
-        "symfony/symfony": "2.4.*",
+        "symfony/symfony": "2.*",
         "phpunit/phpunit": ">=3.7",
         "johnkary/phpunit-speedtrap": "dev-master"
     }
