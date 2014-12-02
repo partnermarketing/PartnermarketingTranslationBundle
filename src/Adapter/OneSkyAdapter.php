@@ -3,7 +3,6 @@
 namespace Partnermarketing\TranslationBundle\Adapter;
 
 use OneSky\ApiClient;
-use Partnermarketing\FileSystemBundle\ServerFileSystem\ServerFileSystem;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 
 class OneSkyAdapter extends TranslationAdapter
@@ -135,7 +134,29 @@ class OneSkyAdapter extends TranslationAdapter
 
     public function getBaseTranslationFiles()
     {
-        return ServerFileSystem::getFilesInDirectory($this->baseTranslationsDir);
+        return self::getFilesInDirectory($this->baseTranslationsDir);
+    }
+
+    private static function getFilesInDirectory($dir)
+    {
+        $iterator = new \DirectoryIterator($dir);
+        $files = [];
+
+        foreach ($iterator as $file) {
+            if ($file->getFilename() === '.' || $file->getFilename() === '..') {
+                continue;
+            }
+
+            if (is_dir($file->getPathname())) {
+                $files = array_merge($files, self::getFilesInDirectory($file->getPathname()));
+            } else {
+                $files[] = realpath($file->getPathname());
+            }
+        }
+
+        sort($files);
+
+        return $files;
     }
 
     public function getPhraseCollectionKeyFromFilename($filename)
