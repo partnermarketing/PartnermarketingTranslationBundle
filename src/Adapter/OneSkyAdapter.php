@@ -72,9 +72,33 @@ class OneSkyAdapter extends TranslationAdapter
         $this->dumpToYaml($english, $phraseCollectionKey, 'en');
 
         foreach ($collection['data']['translations'] as $key => $values) {
-            $this->dumpToYaml($values, $phraseCollectionKey, $key);
+            $languageTag = $this->convertToSymfonyLanguageTag($key);
+            $this->dumpToYaml($values, $phraseCollectionKey, $languageTag);
         }
     }
+
+
+    /**
+    +     * This method converts a language code provided by OneSky into Symfony 2 language code format.
+    +     * e.g: pt-PT -> pt_PT
+    +     *
+    +     * View more details about language tag here: http://en.wikipedia.org/wiki/IETF_language_tag
+    +     *
+    +     * @param $languageString
+    +     * @return string
+    +     */
+    public function convertToSymfonyLanguageTag($languageString)
+    {
+        $languageParts = explode('-', $languageString);
+        $countryCode = $languageParts[0];
+        $languageTag = $countryCode;
+        if(count($languageParts) > 1) {
+            $languageTag .= '_'.$languageParts[1];
+        }
+
+        return $languageTag;
+    }
+
 
     private function dumpToYaml($phrases, $phraseCollectionKey, $locale)
     {

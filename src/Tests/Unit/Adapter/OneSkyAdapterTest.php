@@ -12,6 +12,8 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
 {
     protected $kernel;
     protected $container;
+    /** @var  \Partnermarketing\TranslationBundle\Adapter\OneSkyAdapter $adapter */
+    protected $adapter;
 
     public function setUp()
     {
@@ -87,5 +89,17 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $phraseCollections);
         $this->assertEquals('Bunnies for Dummies', $phraseCollections['books']['book_1.title']['string']);
         $this->assertEquals('10 Best Movies', $phraseCollections['pages/movies']['page_title']['string']);
+    }
+
+    public function testConvertToSymfonyLanguageTag()
+    {
+        $languageTag = 'pt-PT';
+        $symfonyLanguageTag = $this->adapter->convertToSymfonyLanguageTag($languageTag);
+        $this->assertEquals('pt_PT', $symfonyLanguageTag);
+
+        // Ensure it works with simple language tags.
+        $languageTag = 'pt';
+        $symfonyLanguageTag = $this->adapter->convertToSymfonyLanguageTag($languageTag);
+        $this->assertEquals('pt', $symfonyLanguageTag);
     }
 }
