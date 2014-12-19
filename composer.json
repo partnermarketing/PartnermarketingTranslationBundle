@@ -1,6 +1,9 @@
 {
     "name": "partnermarketing/translation-bundle",
+    "type": "library",
     "description": "A translation component supporting different translation adapters -- by default, OneSky.",
+    "homepage": "https://github.com/partnermarketing/PartnermarketingTranslationBundle",
+    "license": "Apache-2.0",
     "autoload": {
         "psr-4": { "Partnermarketing\\TranslationBundle\\": "src/" }
     },
