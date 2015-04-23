@@ -1,4 +1,3 @@
-[![Stories in Ready](https://badge.waffle.io/partnermarketing/PartnermarketingTranslationBundle.png?label=ready&title=Ready)](https://waffle.io/partnermarketing/PartnermarketingTranslationBundle)
 TranslationBundle
 =================
 
