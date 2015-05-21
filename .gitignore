@@ -3,3 +3,4 @@
 /composer.lock
 /src/Tests/Application/cache
 /src/Tests/Application/logs
+.idea
