@@ -1,5 +1,6 @@
 parameters:
     partnermarketing_translation:
+        base_language: en_GB
         supported_languages:
             # To add a language, add the key returned by PHP's 'Locale::getDisplayLanguages()'.
             - en

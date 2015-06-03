@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->variableNode('supported_languages')->isRequired()->end()
+                ->variableNode('base_language')->isRequired()->end()
                 ->arrayNode('one_sky')
                     ->children()
                         ->scalarNode('project_id')

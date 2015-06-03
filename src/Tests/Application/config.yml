@@ -4,6 +4,7 @@ parameters:
 
 partnermarketing_translation:
     supported_languages: [en]
+    base_language: en_GB
     one_sky:
         project_id: 111
         api_key: 222
