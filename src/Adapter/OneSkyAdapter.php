@@ -2,16 +2,19 @@
 
 namespace Partnermarketing\TranslationBundle\Adapter;
 
-use OneSky\ApiClient;
+use Onesky\Api\Client;
+use Onesky\Api\FileFormat;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 
 class OneSkyAdapter extends TranslationAdapter
 {
-    private $baseTranslationsDir,
-        $targetTranslationDir,
-        $oneSkyProjectId,
-        $oneSkyApiKey,
-        $oneSkyApiSecret;
+    private $baseTranslationsDir;
+    private $targetTranslationDir;
+    private $oneSkyProjectId;
+    private $oneSkyApiKey;
+    private $oneSkyApiSecret;
+    /** @var Client $client */
+    private $client;
 
     public function __construct($baseTranslationsDir, $targetTranslationDir, $oneSkyProjectId, $oneSkyApiKey, $oneSkyApiSecret)
     {
@@ -25,20 +28,26 @@ class OneSkyAdapter extends TranslationAdapter
     public function pushBaseTranslations()
     {
         $files = $this->getBaseTranslationFiles();
-        $phraseCollections = $this->getPhraseCollectionsFromFilenames($files);
 
-        $client = $this->createClient();
-        $response = $client->phraseCollections('import', [
-            'project_id' => $this->oneSkyProjectId,
-            'collections' => $phraseCollections,
-        ]);
+        $client = $this->getClient();
+
+        if(count($files) > 0) {
+            foreach($files as $filePath) {
+                $response = $client->files('upload', [
+                    'project_id' => $this->oneSkyProjectId,
+                    'file' => $filePath,
+                    'file_format' => FileFormat::YML
+                ]);
+            }
+        }
+
 
         return json_decode($response, true);
     }
 
     public function getPhraseCollection($phraseCollectionKey)
     {
-        $client = $this->createClient();
+        $client = $this->getClient();
         $response = $client->phraseCollections('show', [
             'project_id' => $this->oneSkyProjectId,
             'collection_key' => $phraseCollectionKey,
@@ -198,10 +207,31 @@ class OneSkyAdapter extends TranslationAdapter
     }
 
     /**
-     * @return \OneSky\ApiClient
+     * @return Client
+     */
+    public function getClient(){
+        if(!$this->client) {
+            $this->client = $this->createClient();
+        }
+        return $this->client;
+    }
+
+    /**
+     * @param Client $client
+     */
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
+    }
+
+    /**
+     * @return Client
      */
     private function createClient()
     {
-        return new ApiClient($this->oneSkyApiKey, $this->oneSkyApiSecret);
+        $client = new Client();
+        $client->setApiKey($this->oneSkyApiKey);
+        $client->setSecret($this->oneSkyApiSecret);
+        return $client;
     }
 }

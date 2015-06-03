@@ -35,6 +35,43 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
+    public function testCreateClient()
+    {
+        $oneSkyClient = $this->adapter->getClient();
+        $this->assertInstanceOf('OneSky\Api\Client', $oneSkyClient);
+    }
+
+    public function testPushBaseTranslations()
+    {
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+            ->disableOriginalConstructor()
+        ->getMock();
+
+        $methodParams = [
+            'project_id' => 111,
+            'file' => $this->baseTranslationsDir . '/books.yml',
+            'file_format' => 'YML'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+            ->method('__call')
+            ->with($this->equalTo('files'), $this->equalTo(['upload', $methodParams]))
+            ->willReturn(json_encode(["meta" => ["status" => 201]]));
+
+        // Test second file is uploaded.
+        $methodParams['file'] = $this->baseTranslationsDir . '/pages/movies.yml';
+
+        $oneSkyMockClient->expects($this->at(1))
+                         ->method('__call')
+                         ->with($this->equalTo('files'), $this->equalTo(['upload', $methodParams]))
+                         ->willReturn(json_encode(["meta" => ["status" => 201]]));
+
+        $this->adapter->setClient($oneSkyMockClient);
+        $this->adapter->pushBaseTranslations();
+    }
+
+
+
     public function testGetBaseTranslationFiles()
     {
         $files = $this->adapter->getBaseTranslationFiles();
