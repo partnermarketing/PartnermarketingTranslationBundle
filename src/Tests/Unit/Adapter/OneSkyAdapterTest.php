@@ -50,7 +50,8 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
         $methodParams = [
             'project_id' => 111,
             'file' => $this->baseTranslationsDir . '/books.yml',
-            'file_format' => 'YML'
+            'file_format' => 'YML',
+            'locale' => 'en_GB'
         ];
 
         $oneSkyMockClient->expects($this->at(0))
@@ -70,6 +71,68 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->pushBaseTranslations();
     }
 
+    public function testGetTranslationFile()
+    {
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+        $methodParams = [
+            'project_id' => 111,
+            'locale' => 'en_GB',
+            'source_file_name' => 'movies.yml'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+page_title: "10 Best Movies"');
+
+
+        $this->adapter->setClient($oneSkyMockClient);
+        $fileContent = $this->adapter->getTranslationFile('en_GB', 'movies.yml');
+
+        $this->assertContains('page_title: "10 Best Movies"',$fileContent);
+    }
+
+
+    public function testGetAllTranslationFiles()
+    {
+
+    }
+
+    public function testDumpAllTranslationsIntoYmlFiles(){
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+        $methodParams = [
+            'project_id' => 111,
+            'locale' => 'en_GB',
+            'source_file_name' => 'books.yml'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+book_1:
+    title: Bunnies for Dummies
+
+book_2:
+    title: Teddy Bear Stories');
+
+        $methodParams['source_file_name'] = 'movies.yml';
+        $oneSkyMockClient->expects($this->at(1))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+page_title: "10 Best Movies"');
+
+        $this->adapter->setClient($oneSkyMockClient);
+        $this->adapter->dumpAllTranslationsIntoYmlFiles();
+    }
 
 
     public function testGetBaseTranslationFiles()

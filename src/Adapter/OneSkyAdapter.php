@@ -13,16 +13,18 @@ class OneSkyAdapter extends TranslationAdapter
     private $oneSkyProjectId;
     private $oneSkyApiKey;
     private $oneSkyApiSecret;
+    private $baseLanguage;
     /** @var Client $client */
     private $client;
 
-    public function __construct($baseTranslationsDir, $targetTranslationDir, $oneSkyProjectId, $oneSkyApiKey, $oneSkyApiSecret)
+    public function __construct($baseTranslationsDir, $targetTranslationDir, $oneSkyProjectId, $oneSkyApiKey, $oneSkyApiSecret, $baseLanguage)
     {
         $this->baseTranslationsDir = rtrim($baseTranslationsDir, '/');
         $this->targetTranslationDir = rtrim($targetTranslationDir, '/');
         $this->oneSkyProjectId = $oneSkyProjectId;
         $this->oneSkyApiKey = $oneSkyApiKey;
         $this->oneSkyApiSecret = $oneSkyApiSecret;
+        $this->baseLanguage = $baseLanguage;
     }
 
     public function pushBaseTranslations()
@@ -36,11 +38,11 @@ class OneSkyAdapter extends TranslationAdapter
                 $response = $client->files('upload', [
                     'project_id' => $this->oneSkyProjectId,
                     'file' => $filePath,
-                    'file_format' => FileFormat::YML
+                    'file_format' => FileFormat::YML,
+                    'locale' => $this->getBaseLanguage()
                 ]);
             }
         }
-
 
         return json_decode($response, true);
     }
@@ -56,6 +58,26 @@ class OneSkyAdapter extends TranslationAdapter
         return json_decode($response, true);
     }
 
+
+    /**
+     * @param $locale
+     * @param $sourceFileName
+     *
+     * @return string
+     */
+    public function getTranslationFile($locale, $sourceFileName)
+    {
+        $client = $this->getClient();
+        $response = $client->translations('export', [
+            'project_id' => $this->oneSkyProjectId,
+            'locale' => $locale,
+            'source_file_name' => $sourceFileName
+        ]);
+
+        return $response;
+    }
+
+
     public function isPhraseCollection($phraseCollectionKey)
     {
         return in_array($phraseCollectionKey, $this->listPhraseCollections());
@@ -70,8 +92,30 @@ class OneSkyAdapter extends TranslationAdapter
         }, $files);
     }
 
+    public function dumpTranslationFileToYamlFile($locale, $fileName)
+    {
+        // get all project languages.
+        // get all language files.
+    }
+
+    public function dumpAllTranslationsIntoYmlFiles(){
+        $files = $this->getBaseTranslationFiles();
+        $locale = $this->getBaseLanguage();
+        foreach($files as $filePath) {
+            $fileName = $this->getFilenameFromFilePath($filePath);
+            $fileContent = $this->getTranslationFile($locale, $fileName);
+            $yamlArray = YamlParser::parse($fileContent);
+            $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename($filePath);
+            if($fileContent) {
+                $this->dumpToYaml($yamlArray, $phraseCollectionKey, $locale);
+            }
+        }
+    }
+
     public function dumpPhraseCollectionToYamlFile($phraseCollectionKey)
     {
+
+
         $collection = $this->getPhraseCollection($phraseCollectionKey);
 
         $english = [];
@@ -201,6 +245,14 @@ class OneSkyAdapter extends TranslationAdapter
         return $key;
     }
 
+    public function getFilenameFromFilePath($filePath)
+    {
+        $parts = explode('/', $filePath);
+        $fileName = $parts[count($parts)-1];
+
+        return trim($fileName);
+    }
+
     public function getTargetFileFromPhraseCollectionKeyAndLocale($phraseCollectionKey, $locale)
     {
         return $this->targetTranslationDir . '/' . $phraseCollectionKey . '.' . $locale . '.yml';
@@ -233,5 +285,13 @@ class OneSkyAdapter extends TranslationAdapter
         $client->setApiKey($this->oneSkyApiKey);
         $client->setSecret($this->oneSkyApiSecret);
         return $client;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBaseLanguage()
+    {
+        return $this->baseLanguage;
     }
 }
