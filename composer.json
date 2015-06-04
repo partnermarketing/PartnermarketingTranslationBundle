@@ -9,7 +9,7 @@
     },
     "require": {
         "php": ">=5.4.0",
-        "onesky/api-library-php5": "dev-develop"
+        "onesky/api-library-php5": "dev-develop as 1.0.5"
     },
     "require-dev": {
         "symfony/symfony": "2.*",
