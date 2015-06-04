@@ -28,7 +28,7 @@ class PullTranslationsCommandTest extends \PHPUnit_Framework_TestCase
     public function testExecute_pullAll()
     {
         $this->fakeAdapter->expects($this->once())
-            ->method('dumpAllPhraseCollectionsToYamlFiles')
+            ->method('dumpAllTranslationsToYamlFiles')
             ->with();
 
         $commandTester = new CommandTester($this->command);

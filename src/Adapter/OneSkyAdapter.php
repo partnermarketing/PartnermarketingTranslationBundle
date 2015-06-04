@@ -47,17 +47,6 @@ class OneSkyAdapter extends TranslationAdapter
         return json_decode($response, true);
     }
 
-    public function getPhraseCollection($phraseCollectionKey)
-    {
-        $client = $this->getClient();
-        $response = $client->phraseCollections('show', [
-            'project_id' => $this->oneSkyProjectId,
-            'collection_key' => $phraseCollectionKey,
-        ]);
-
-        return json_decode($response, true);
-    }
-
 
     /**
      * @param $locale
@@ -78,27 +67,11 @@ class OneSkyAdapter extends TranslationAdapter
     }
 
 
-    public function isPhraseCollection($phraseCollectionKey)
-    {
-        return in_array($phraseCollectionKey, $this->listPhraseCollections());
-    }
-
-    public function listPhraseCollections()
-    {
-        $files = $this->getBaseTranslationFiles();
-
-        return array_map(function ($file) {
-            return $this->getPhraseCollectionKeyFromFilename($file);
-        }, $files);
-    }
-
-    public function dumpTranslationFileToYamlFile($locale, $fileName)
-    {
-        // get all project languages.
-        // get all language files.
-    }
-
-    public function dumpAllTranslationsIntoYmlFiles(){
+    /**
+     * @todo need to dump all translations in all supported languages.
+     * waiting on project languages API to be fixed.
+     */
+    public function dumpAllTranslationsToYamlFiles(){
         $files = $this->getBaseTranslationFiles();
         $locale = $this->getBaseLanguage();
         foreach($files as $filePath) {
@@ -109,24 +82,6 @@ class OneSkyAdapter extends TranslationAdapter
             if($fileContent) {
                 $this->dumpToYaml($yamlArray, $phraseCollectionKey, $locale);
             }
-        }
-    }
-
-    public function dumpPhraseCollectionToYamlFile($phraseCollectionKey)
-    {
-
-
-        $collection = $this->getPhraseCollection($phraseCollectionKey);
-
-        $english = [];
-        foreach ($collection['data']['base_language']['en'] as $key => $value) {
-            $english[$key] = $value['string'];
-        }
-        $this->dumpToYaml($english, $phraseCollectionKey, 'en');
-
-        foreach ($collection['data']['translations'] as $key => $values) {
-            $languageTag = $this->convertToSymfonyLanguageTag($key);
-            $this->dumpToYaml($values, $phraseCollectionKey, $languageTag);
         }
     }
 
@@ -165,13 +120,6 @@ class OneSkyAdapter extends TranslationAdapter
         file_put_contents($targetFile, $yaml);
     }
 
-    public function dumpAllPhraseCollectionsToYamlFiles()
-    {
-        $phraseCollectionKeys = $this->listPhraseCollections();
-        foreach ($phraseCollectionKeys as $phraseCollectionKey) {
-            $this->dumpPhraseCollectionToYamlFile($phraseCollectionKey);
-        }
-    }
 
     public function getPhraseCollectionsFromFilenames($filenames)
     {

@@ -24,7 +24,7 @@ class PullTranslationsCommand extends ContainerAwareCommand
     {
         $adapter = $this->getContainer()->get('partnermarketing_translation.adapter');
 
-        $adapter->dumpAllPhraseCollectionsToYamlFiles();
+        $adapter->dumpAllTranslationsToYamlFiles();
         $output->writeln('Pulled translations for all phrase collections');
     }
 }

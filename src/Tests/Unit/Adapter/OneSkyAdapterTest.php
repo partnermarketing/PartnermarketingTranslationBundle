@@ -131,7 +131,7 @@ book_2:
 page_title: "10 Best Movies"');
 
         $this->adapter->setClient($oneSkyMockClient);
-        $this->adapter->dumpAllTranslationsIntoYmlFiles();
+        $this->adapter->dumpAllTranslationsToYamlFiles();
     }
 
 
@@ -146,26 +146,6 @@ page_title: "10 Best Movies"');
         $this->assertStringEndsWith('Resources/base-translations/pages/movies.yml', $files[1]);
     }
 
-    public function testListPhraseCollections()
-    {
-        $phraseCollections = $this->adapter->listPhraseCollections();
-
-        $this->assertCount(2, $phraseCollections);
-        $this->assertContains('books', $phraseCollections);
-        $this->assertContains('pages/movies', $phraseCollections);
-    }
-
-    public function testIsPhraseCollection()
-    {
-        $phraseCollections = $this->adapter->listPhraseCollections();
-
-        $this->assertTrue($this->adapter->isPhraseCollection('books'));
-        $this->assertTrue($this->adapter->isPhraseCollection('pages/movies'));
-
-        $this->assertFalse($this->adapter->isPhraseCollection('books.yml'));
-        $this->assertFalse($this->adapter->isPhraseCollection('pages/books'));
-        $this->assertFalse($this->adapter->isPhraseCollection('pages/movies.yml'));
-    }
 
     public function testGetPhraseCollectionKeyFromFilename()
     {
