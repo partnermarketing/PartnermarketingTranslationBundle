@@ -86,9 +86,19 @@ class OneSkyAdapter extends TranslationAdapter
                 if ($fileContent) {
                     $this->dumpToYaml( $yamlArray, $phraseCollectionKey, $supportedLanguage );
                 }
+                if($supportedLanguage === $this->getBaseLanguage()) {
+                    $existingContent = YamlParser::parse(file_get_contents($filePath));
+                    $result = array_merge($existingContent, $yamlArray);
+
+                    $yaml = YamlParser::dump($result);
+                    file_put_contents($filePath, $yaml);
+                }
             }
         }
+
     }
+
+
 
 
     /**
