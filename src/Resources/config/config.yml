@@ -1,6 +1,6 @@
 partnermarketing_translation:
-    supported_languages: %partnermarketing_translation.supported_languages%
     base_language: %partnermarketing_translation.base_language%
+    supported_languages: %partnermarketing_translation.supported_languages%
     one_sky:
         project_id: %partnermarketing_translation.one_sky.project_id%
         api_key:    %partnermarketing_translation.one_sky.api_key%

@@ -1,9 +1,10 @@
 parameters:
+    locale: en_GB
     partnermarketing_translation:
-        base_language: en_GB
+        base_language: %locale%
         supported_languages:
             # To add a language, add the key returned by PHP's 'Locale::getDisplayLanguages()'.
-            - en
+            - %locale%
         one_sky:
             project_id: xxx
             api_key:    xxx
