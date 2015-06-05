@@ -38,7 +38,8 @@ class OneSkyAdapter extends TranslationAdapter
                 $response = $client->files('upload', [
                     'project_id' => $this->oneSkyProjectId,
                     'file' => $filePath,
-                    'file_format' => FileFormat::YML,
+                    // @todo change hardcoded format to: FileFormat::YML
+                    'file_format' => 'YML',
                     'locale' => $this->getBaseLanguage()
                 ]);
             }

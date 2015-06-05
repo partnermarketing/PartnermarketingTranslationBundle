@@ -9,17 +9,11 @@
     },
     "require": {
         "php": ">=5.4.0",
-        "onesky/api-library-php5": "dev-develop as 1.0.5"
+        "onesky/api-library-php5": "~1.0"
     },
     "require-dev": {
         "symfony/symfony": "2.*",
         "phpunit/phpunit": ">=3.7",
         "johnkary/phpunit-speedtrap": "dev-master"
-    },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/partnermarketing/api-library-php5.git"
-        }
-    ]
+    }
 }
