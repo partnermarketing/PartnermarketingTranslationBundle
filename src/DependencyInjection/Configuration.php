@@ -18,12 +18,21 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
+
         $rootNode = $treeBuilder->root('partnermarketing_translation');
 
         $rootNode
             ->children()
-                ->variableNode('supported_languages')->isRequired()->end()
-                ->variableNode('base_language')->isRequired()->end()
+                ->variableNode('base_language')
+                    ->isRequired()
+                    ->defaultValue('%locale%')
+                ->end()
+                ->arrayNode('supported_languages')
+                    ->isRequired()
+                    ->prototype('scalar')
+                        ->defaultValue('%locale%')
+                    ->end()
+                ->end()
                 ->arrayNode('one_sky')
                     ->children()
                         ->scalarNode('project_id')
