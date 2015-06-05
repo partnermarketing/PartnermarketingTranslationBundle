@@ -5,7 +5,7 @@ parameters:
 
 partnermarketing_translation:
     base_language: %locale%
-    supported_languages: [%locale%]
+    supported_languages: [%locale%, pt_PT]
     one_sky:
         project_id: 111
         api_key: 222

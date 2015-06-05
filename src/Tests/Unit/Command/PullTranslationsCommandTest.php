@@ -40,4 +40,19 @@ class PullTranslationsCommandTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Pulled translations for all phrase collections', $display);
     }
 
+    public function testPullAllSupportedLanguages()
+    {
+        $this->fakeAdapter->expects($this->once())
+                          ->method('dumpAllTranslationsToYamlFiles')
+                          ->with();
+
+        $commandTester = new CommandTester($this->command);
+        $commandTester->execute([
+            'command' => $this->command->getName(),
+        ]);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('Pulled translations for all phrase collections', $display);
+    }
+
 }
