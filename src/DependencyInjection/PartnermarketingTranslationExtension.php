@@ -22,6 +22,7 @@ class PartnermarketingTranslationExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('partnermarketing_translation.base_language', $config['base_language']);
         $container->setParameter('partnermarketing_translation.supported_languages', $config['supported_languages']);
         $container->setParameter('partnermarketing_translation.one_sky.project_id', $config['one_sky']['project_id']);
         $container->setParameter('partnermarketing_translation.one_sky.api_key', $config['one_sky']['api_key']);

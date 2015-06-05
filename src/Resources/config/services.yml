@@ -7,5 +7,6 @@ services:
             - %partnermarketing_translation.one_sky.project_id%
             - %partnermarketing_translation.one_sky.api_key%
             - %partnermarketing_translation.one_sky.api_secret%
+            - %partnermarketing_translation.base_language%
 
     partnermarketing_translation.adapter: @partnermarketing_translation.one_sky_adapter

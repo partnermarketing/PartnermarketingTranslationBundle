@@ -2,78 +2,87 @@
 
 namespace Partnermarketing\TranslationBundle\Adapter;
 
-use OneSky\ApiClient;
+use Onesky\Api\Client;
+use Onesky\Api\FileFormat;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 
 class OneSkyAdapter extends TranslationAdapter
 {
-    private $baseTranslationsDir,
-        $targetTranslationDir,
-        $oneSkyProjectId,
-        $oneSkyApiKey,
-        $oneSkyApiSecret;
+    private $baseTranslationsDir;
+    private $targetTranslationDir;
+    private $oneSkyProjectId;
+    private $oneSkyApiKey;
+    private $oneSkyApiSecret;
+    private $baseLanguage;
+    /** @var Client $client */
+    private $client;
 
-    public function __construct($baseTranslationsDir, $targetTranslationDir, $oneSkyProjectId, $oneSkyApiKey, $oneSkyApiSecret)
+    public function __construct($baseTranslationsDir, $targetTranslationDir, $oneSkyProjectId, $oneSkyApiKey, $oneSkyApiSecret, $baseLanguage)
     {
         $this->baseTranslationsDir = rtrim($baseTranslationsDir, '/');
         $this->targetTranslationDir = rtrim($targetTranslationDir, '/');
         $this->oneSkyProjectId = $oneSkyProjectId;
         $this->oneSkyApiKey = $oneSkyApiKey;
         $this->oneSkyApiSecret = $oneSkyApiSecret;
+        $this->baseLanguage = $baseLanguage;
     }
 
     public function pushBaseTranslations()
     {
         $files = $this->getBaseTranslationFiles();
-        $phraseCollections = $this->getPhraseCollectionsFromFilenames($files);
 
-        $client = $this->createClient();
-        $response = $client->phraseCollections('import', [
-            'project_id' => $this->oneSkyProjectId,
-            'collections' => $phraseCollections,
-        ]);
+        $client = $this->getClient();
 
-        return json_decode($response, true);
-    }
-
-    public function getPhraseCollection($phraseCollectionKey)
-    {
-        $client = $this->createClient();
-        $response = $client->phraseCollections('show', [
-            'project_id' => $this->oneSkyProjectId,
-            'collection_key' => $phraseCollectionKey,
-        ]);
-
-        return json_decode($response, true);
-    }
-
-    public function isPhraseCollection($phraseCollectionKey)
-    {
-        return in_array($phraseCollectionKey, $this->listPhraseCollections());
-    }
-
-    public function listPhraseCollections()
-    {
-        $files = $this->getBaseTranslationFiles();
-
-        return array_map(function ($file) {
-            return $this->getPhraseCollectionKeyFromFilename($file);
-        }, $files);
-    }
-
-    public function dumpPhraseCollectionToYamlFile($phraseCollectionKey)
-    {
-        $collection = $this->getPhraseCollection($phraseCollectionKey);
-
-        $english = [];
-        foreach ($collection['data']['base_language']['en'] as $key => $value) {
-            $english[$key] = $value['string'];
+        if(count($files) > 0) {
+            foreach($files as $filePath) {
+                $response = $client->files('upload', [
+                    'project_id' => $this->oneSkyProjectId,
+                    'file' => $filePath,
+                    // @todo change hardcoded format to: FileFormat::YML
+                    'file_format' => 'YML',
+                    'locale' => $this->getBaseLanguage()
+                ]);
+            }
         }
-        $this->dumpToYaml($english, $phraseCollectionKey, 'en');
 
-        foreach ($collection['data']['translations'] as $key => $values) {
-            $languageTag = $this->convertToSymfonyLanguageTag($key);
-            $this->dumpToYaml($values, $phraseCollectionKey, $languageTag);
+        return json_decode($response, true);
+    }
+
+
+    /**
+     * @param $locale
+     * @param $sourceFileName
+     *
+     * @return string
+     */
+    public function getTranslationFile($locale, $sourceFileName)
+    {
+        $client = $this->getClient();
+        $response = $client->translations('export', [
+            'project_id' => $this->oneSkyProjectId,
+            'locale' => $locale,
+            'source_file_name' => $sourceFileName
+        ]);
+
+        return $response;
+    }
+
+
+    /**
+     * @todo need to dump all translations in all supported languages.
+     * waiting on project languages API to be fixed.
+     */
+    public function dumpAllTranslationsToYamlFiles(){
+        $files = $this->getBaseTranslationFiles();
+        $locale = $this->getBaseLanguage();
+        foreach($files as $filePath) {
+            $fileName = $this->getFilenameFromFilePath($filePath);
+            $fileContent = $this->getTranslationFile($locale, $fileName);
+            $yamlArray = YamlParser::parse($fileContent);
+            $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename($filePath);
+            if($fileContent) {
+                $this->dumpToYaml($yamlArray, $phraseCollectionKey, $locale);
+            }
         }
     }
 
@@ -112,13 +121,6 @@ class OneSkyAdapter extends TranslationAdapter
         file_put_contents($targetFile, $yaml);
     }
 
-    public function dumpAllPhraseCollectionsToYamlFiles()
-    {
-        $phraseCollectionKeys = $this->listPhraseCollections();
-        foreach ($phraseCollectionKeys as $phraseCollectionKey) {
-            $this->dumpPhraseCollectionToYamlFile($phraseCollectionKey);
-        }
-    }
 
     public function getPhraseCollectionsFromFilenames($filenames)
     {
@@ -192,16 +194,53 @@ class OneSkyAdapter extends TranslationAdapter
         return $key;
     }
 
+    public function getFilenameFromFilePath($filePath)
+    {
+        $parts = explode('/', $filePath);
+        $fileName = $parts[count($parts)-1];
+
+        return trim($fileName);
+    }
+
     public function getTargetFileFromPhraseCollectionKeyAndLocale($phraseCollectionKey, $locale)
     {
         return $this->targetTranslationDir . '/' . $phraseCollectionKey . '.' . $locale . '.yml';
     }
 
     /**
-     * @return \OneSky\ApiClient
+     * @return Client
+     */
+    public function getClient(){
+        if(!$this->client) {
+            $this->client = $this->createClient();
+        }
+        return $this->client;
+    }
+
+    /**
+     * @param Client $client
+     */
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
+    }
+
+    /**
+     * @return Client
      */
     private function createClient()
     {
-        return new ApiClient($this->oneSkyApiKey, $this->oneSkyApiSecret);
+        $client = new Client();
+        $client->setApiKey($this->oneSkyApiKey);
+        $client->setSecret($this->oneSkyApiSecret);
+        return $client;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBaseLanguage()
+    {
+        return $this->baseLanguage;
     }
 }

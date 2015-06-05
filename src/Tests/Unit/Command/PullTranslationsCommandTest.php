@@ -28,7 +28,7 @@ class PullTranslationsCommandTest extends \PHPUnit_Framework_TestCase
     public function testExecute_pullAll()
     {
         $this->fakeAdapter->expects($this->once())
-            ->method('dumpAllPhraseCollectionsToYamlFiles')
+            ->method('dumpAllTranslationsToYamlFiles')
             ->with();
 
         $commandTester = new CommandTester($this->command);
@@ -40,50 +40,4 @@ class PullTranslationsCommandTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Pulled translations for all phrase collections', $display);
     }
 
-    public function testExecute_pullOne()
-    {
-        $this->fakeAdapter->expects($this->once())
-            ->method('dumpPhraseCollectionToYamlFile')
-            ->with('tours');
-
-        $this->fakeAdapter->expects($this->never())
-            ->method('dumpAllPhraseCollectionsToYamlFiles');
-
-        $this->fakeAdapter->expects($this->once())
-            ->method('isPhraseCollection')
-            ->with('tours')
-            ->will($this->returnValue(true));
-
-        $commandTester = new CommandTester($this->command);
-        $commandTester->execute([
-            'command' => $this->command->getName(),
-            'phrase_collection_key' => 'tours',
-        ]);
-
-        $display = $commandTester->getDisplay();
-        $this->assertContains('Pulled translations for the phrase collection: tours', $display);
-    }
-
-    public function testExecute_invalidPhraseCollectionKey()
-    {
-        $this->fakeAdapter->expects($this->never())
-            ->method('dumpPhraseCollectionsToYamlFile');
-
-        $this->fakeAdapter->expects($this->never())
-            ->method('dumpAllPhraseCollectionsToYamlFiles');
-
-        $this->fakeAdapter->expects($this->once())
-            ->method('isPhraseCollection')
-            ->with('yadayada')
-            ->will($this->returnValue(false));
-
-        $commandTester = new CommandTester($this->command);
-        $commandTester->execute([
-            'command' => $this->command->getName(),
-            'phrase_collection_key' => 'yadayada',
-        ]);
-
-        $display = $commandTester->getDisplay();
-        $this->assertContains('This is not a valid phrase collection key: yadayada', $display);
-    }
 }

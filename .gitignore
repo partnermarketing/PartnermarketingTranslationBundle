@@ -4,3 +4,4 @@
 /src/Tests/Application/cache
 /src/Tests/Application/logs
 .idea
+src/Tests/Application/Resources/translations

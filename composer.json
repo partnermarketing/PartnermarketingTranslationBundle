@@ -9,7 +9,7 @@
     },
     "require": {
         "php": ">=5.4.0",
-        "amyboyd/onesky-api-client": "~0.1"
+        "onesky/api-library-php5": "~1.0"
     },
     "require-dev": {
         "symfony/symfony": "2.*",

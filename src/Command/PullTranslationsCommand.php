@@ -23,20 +23,8 @@ class PullTranslationsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $adapter = $this->getContainer()->get('partnermarketing_translation.adapter');
-        $phraseCollectionKey = $input->getArgument('phrase_collection_key');
 
-        if ($phraseCollectionKey) {
-            if (!$adapter->isPhraseCollection($phraseCollectionKey)) {
-                $output->writeln('This is not a valid phrase collection key: ' . $phraseCollectionKey);
-
-                return;
-            }
-
-            $adapter->dumpPhraseCollectionToYamlFile($phraseCollectionKey);
-            $output->writeln('Pulled translations for the phrase collection: ' . $phraseCollectionKey);
-        } else {
-            $adapter->dumpAllPhraseCollectionsToYamlFiles();
-            $output->writeln('Pulled translations for all phrase collections');
-        }
+        $adapter->dumpAllTranslationsToYamlFiles();
+        $output->writeln('Pulled translations for all phrase collections');
     }
 }

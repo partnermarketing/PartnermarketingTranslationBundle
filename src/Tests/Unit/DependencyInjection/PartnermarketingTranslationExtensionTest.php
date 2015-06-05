@@ -31,6 +31,7 @@ class PartnermarketingTranslationExtensionTest extends \PHPUnit_Framework_TestCa
     {
         $configs = array(
             "supported_languages" => null,
+            "base_language" => 'en_GB',
             "one_sky"             => array(
                 "project_id" => "123",
                 "api_key"    => "xxx",
@@ -52,6 +53,7 @@ class PartnermarketingTranslationExtensionTest extends \PHPUnit_Framework_TestCa
     {
         $configs = array(
                 "supported_languages" => null,
+                "base_language" => 'en_GB',
                 "one_sky" => array(
                     "project_id" => "123",
                     "api_key" => "xxx",
@@ -62,6 +64,7 @@ class PartnermarketingTranslationExtensionTest extends \PHPUnit_Framework_TestCa
 
         $this->extension->load(array($configs), $container = $this->getContainer());
 
+        $this->assertEquals('en_GB', $container->getParameter($this->root . ".base_language"));
         $this->assertEquals(null, $container->getParameter($this->root . ".supported_languages"));
         $this->assertEquals('123', $container->getParameter($this->root . ".one_sky.project_id"));
         $this->assertEquals('xxx', $container->getParameter($this->root . ".one_sky.api_key"));

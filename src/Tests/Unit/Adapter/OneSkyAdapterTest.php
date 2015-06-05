@@ -35,6 +35,106 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
+    public function testCreateClient()
+    {
+        $oneSkyClient = $this->adapter->getClient();
+        $this->assertInstanceOf('OneSky\Api\Client', $oneSkyClient);
+    }
+
+    public function testPushBaseTranslations()
+    {
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+            ->disableOriginalConstructor()
+        ->getMock();
+
+        $methodParams = [
+            'project_id' => 111,
+            'file' => $this->baseTranslationsDir . '/books.yml',
+            'file_format' => 'YML',
+            'locale' => 'en_GB'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+            ->method('__call')
+            ->with($this->equalTo('files'), $this->equalTo(['upload', $methodParams]))
+            ->willReturn(json_encode(["meta" => ["status" => 201]]));
+
+        // Test second file is uploaded.
+        $methodParams['file'] = $this->baseTranslationsDir . '/pages/movies.yml';
+
+        $oneSkyMockClient->expects($this->at(1))
+                         ->method('__call')
+                         ->with($this->equalTo('files'), $this->equalTo(['upload', $methodParams]))
+                         ->willReturn(json_encode(["meta" => ["status" => 201]]));
+
+        $this->adapter->setClient($oneSkyMockClient);
+        $this->adapter->pushBaseTranslations();
+    }
+
+    public function testGetTranslationFile()
+    {
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+        $methodParams = [
+            'project_id' => 111,
+            'locale' => 'en_GB',
+            'source_file_name' => 'movies.yml'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+page_title: "10 Best Movies"');
+
+
+        $this->adapter->setClient($oneSkyMockClient);
+        $fileContent = $this->adapter->getTranslationFile('en_GB', 'movies.yml');
+
+        $this->assertContains('page_title: "10 Best Movies"',$fileContent);
+    }
+
+
+    public function testGetAllTranslationFiles()
+    {
+
+    }
+
+    public function testDumpAllTranslationsIntoYmlFiles(){
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+        $methodParams = [
+            'project_id' => 111,
+            'locale' => 'en_GB',
+            'source_file_name' => 'books.yml'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+book_1:
+    title: Bunnies for Dummies
+
+book_2:
+    title: Teddy Bear Stories');
+
+        $methodParams['source_file_name'] = 'movies.yml';
+        $oneSkyMockClient->expects($this->at(1))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+page_title: "10 Best Movies"');
+
+        $this->adapter->setClient($oneSkyMockClient);
+        $this->adapter->dumpAllTranslationsToYamlFiles();
+    }
+
+
     public function testGetBaseTranslationFiles()
     {
         $files = $this->adapter->getBaseTranslationFiles();
@@ -46,26 +146,6 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertStringEndsWith('Resources/base-translations/pages/movies.yml', $files[1]);
     }
 
-    public function testListPhraseCollections()
-    {
-        $phraseCollections = $this->adapter->listPhraseCollections();
-
-        $this->assertCount(2, $phraseCollections);
-        $this->assertContains('books', $phraseCollections);
-        $this->assertContains('pages/movies', $phraseCollections);
-    }
-
-    public function testIsPhraseCollection()
-    {
-        $phraseCollections = $this->adapter->listPhraseCollections();
-
-        $this->assertTrue($this->adapter->isPhraseCollection('books'));
-        $this->assertTrue($this->adapter->isPhraseCollection('pages/movies'));
-
-        $this->assertFalse($this->adapter->isPhraseCollection('books.yml'));
-        $this->assertFalse($this->adapter->isPhraseCollection('pages/books'));
-        $this->assertFalse($this->adapter->isPhraseCollection('pages/movies.yml'));
-    }
 
     public function testGetPhraseCollectionKeyFromFilename()
     {
