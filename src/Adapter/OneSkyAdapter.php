@@ -14,10 +14,11 @@ class OneSkyAdapter extends TranslationAdapter
     private $oneSkyApiKey;
     private $oneSkyApiSecret;
     private $baseLanguage;
+    private $supportedLanguages = [];
     /** @var Client $client */
     private $client;
 
-    public function __construct($baseTranslationsDir, $targetTranslationDir, $oneSkyProjectId, $oneSkyApiKey, $oneSkyApiSecret, $baseLanguage)
+    public function __construct($baseTranslationsDir, $targetTranslationDir, $oneSkyProjectId, $oneSkyApiKey, $oneSkyApiSecret, $baseLanguage, $supportedLanguages)
     {
         $this->baseTranslationsDir = rtrim($baseTranslationsDir, '/');
         $this->targetTranslationDir = rtrim($targetTranslationDir, '/');
@@ -74,17 +75,30 @@ class OneSkyAdapter extends TranslationAdapter
      */
     public function dumpAllTranslationsToYamlFiles(){
         $files = $this->getBaseTranslationFiles();
-        $locale = $this->getBaseLanguage();
-        foreach($files as $filePath) {
-            $fileName = $this->getFilenameFromFilePath($filePath);
-            $fileContent = $this->getTranslationFile($locale, $fileName);
-            $yamlArray = YamlParser::parse($fileContent);
-            $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename($filePath);
-            if($fileContent) {
-                $this->dumpToYaml($yamlArray, $phraseCollectionKey, $locale);
+        $supportedLanguages = $this->getSupportedLanguages();
+
+        foreach($supportedLanguages as $supportedLanguage) {
+            foreach ($files as $filePath) {
+                $fileName            = $this->getFilenameFromFilePath( $filePath );
+                $fileContent         = $this->getTranslationFile( $supportedLanguage, $fileName );
+                $yamlArray           = YamlParser::parse( $fileContent );
+                $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename( $filePath );
+                if ($fileContent) {
+                    $this->dumpToYaml( $yamlArray, $phraseCollectionKey, $supportedLanguage );
+                }
+                if($supportedLanguage === $this->getBaseLanguage()) {
+                    $existingContent = YamlParser::parse(file_get_contents($filePath));
+                    $result = array_merge($existingContent, $yamlArray);
+
+                    $yaml = YamlParser::dump($result);
+                    file_put_contents($filePath, $yaml);
+                }
             }
         }
+
     }
+
+
 
 
     /**
@@ -243,4 +257,21 @@ class OneSkyAdapter extends TranslationAdapter
     {
         return $this->baseLanguage;
     }
+
+    /**
+     * @return array
+     */
+    public function getSupportedLanguages()
+    {
+        return $this->supportedLanguages;
+    }
+
+    /**
+     * @param array $supportedLanguages
+     */
+    public function setSupportedLanguages( $supportedLanguages )
+    {
+        $this->supportedLanguages = $supportedLanguages;
+    }
+
 }

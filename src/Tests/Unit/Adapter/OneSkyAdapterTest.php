@@ -4,6 +4,9 @@ namespace Partnermarketing\TranslationBundle\Tests\Unit\Adapter;
 
 use Partnermarketing\TranslationBundle\Adapter\OneSkyAdapter;
 use Partnermarketing\TranslationBundle\Tests\Application\AppKernel;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Test the OneSkyAdapter service.
@@ -14,6 +17,7 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
     protected $container;
     /** @var  \Partnermarketing\TranslationBundle\Adapter\OneSkyAdapter $adapter */
     protected $adapter;
+    private $baseTranslationsDir;
 
     public function setUp()
     {
@@ -29,8 +33,13 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
     }
 
+
     public function tearDown()
     {
+        $translationsDirectory = realpath($this->baseTranslationsDir.'/../translations/');
+        $filesystem = new Filesystem();
+        $filesystem->remove($translationsDirectory);
+
         $this->kernel->shutdown();
         parent::tearDown();
     }
@@ -107,6 +116,7 @@ page_title: "10 Best Movies"');
                                  ->disableOriginalConstructor()
                                  ->getMock();
 
+
         $methodParams = [
             'project_id' => 111,
             'locale' => 'en_GB',
@@ -130,8 +140,69 @@ book_2:
                          ->willReturn('---
 page_title: "10 Best Movies"');
 
+        $this->adapter->setSupportedLanguages(['en_GB']);
         $this->adapter->setClient($oneSkyMockClient);
         $this->adapter->dumpAllTranslationsToYamlFiles();
+    }
+
+    public function testDumpAllTranslationsIntoYmlFilesWithMoreThenOneSupportedLanguage(){
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+
+        $methodParams = [
+            'project_id' => 111,
+            'locale' => 'en_GB',
+            'source_file_name' => 'books.yml'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+book_1:
+    title: Bunnies for Dummies
+
+book_2:
+    title: Teddy Bear Stories');
+
+        $methodParams['source_file_name'] = 'movies.yml';
+        $oneSkyMockClient->expects($this->at(1))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+page_title: "10 Best Movies"');
+
+        $methodParams['locale'] = 'pt_PT';
+        $methodParams['source_file_name'] = 'books.yml';
+        $oneSkyMockClient->expects($this->at(2))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+book_1:
+    title: Coelhos para totos
+
+book_2:
+    title: Historias do ursinho');
+
+        $methodParams['source_file_name'] = 'movies.yml';
+        $oneSkyMockClient->expects($this->at(3))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+page_title: "10 Melhores filmes"');
+
+
+        $this->adapter->setSupportedLanguages(['en_GB', 'pt_PT']);
+        $this->adapter->setClient($oneSkyMockClient);
+        $this->adapter->dumpAllTranslationsToYamlFiles();
+
+        // Ensure files were created.
+        $this->assertFileExists($this->baseTranslationsDir.'/../translations/books.en_GB.yml');
+        $this->assertFileExists($this->baseTranslationsDir.'/../translations/books.pt_PT.yml');
+        $this->assertFileExists($this->baseTranslationsDir.'/../translations/pages/movies.en_GB.yml');
+        $this->assertFileExists($this->baseTranslationsDir.'/../translations/pages/movies.pt_PT.yml');
     }
 
 
