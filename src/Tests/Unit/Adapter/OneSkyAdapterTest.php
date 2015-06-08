@@ -6,6 +6,7 @@ use Partnermarketing\TranslationBundle\Adapter\OneSkyAdapter;
 use Partnermarketing\TranslationBundle\Tests\Application\AppKernel;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Test the OneSkyAdapter service.
@@ -33,19 +34,11 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    private function deleteFolder($path) {
-        if(!empty($path) && is_dir($path) ){
-            $dir  = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS); //upper dirs are not included,otherwise DISASTER HAPPENS :)
-            $files = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
-            foreach ($files as $f) {if (is_file($f)) {unlink($f);} else {$empty_dirs[] = $f;} } if (!empty($empty_dirs)) {foreach ($empty_dirs as $eachDir) {rmdir($eachDir);}} rmdir($path);
-        }
-    }
-
     public function tearDown()
     {
-        $directory = realpath($this->baseTranslationsDir.'/../translations/');
-        $this->deleteFolder($directory);
-
+        $translationsDirectory = realpath($this->baseTranslationsDir.'/../translations/');
+        $filesystem = new Filesystem();
+        $filesystem->remove($translationsDirectory);
 
         $this->kernel->shutdown();
         parent::tearDown();
