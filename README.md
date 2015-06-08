@@ -28,8 +28,8 @@ base-translations/hello_world.yml
 After translation will become:
 
 ```
-translations/hello_world.en-GB.yml
-translations/hello_world.pt-PT.yml
+translations/hello_world.en_GB.yml
+translations/hello_world.pt_PT.yml
 ...
 ```
 
@@ -40,6 +40,9 @@ in your `parameters.yml`
 
 ```yml
 parameters:
+    locale: en_GB # Symfony2 locale configuration
+    partnermarketing_translation.base_language: %locale%
+    partnermarketing_translation.supported_languages: [%locale%, pt_PT]
     partnermarketing_translation.one_sky.project_id: 123
     partnermarketing_translation.one_sky.api_key: yourOneskyKey
     partnermarketing_translation.one_sky.api_secret: youroneskysecret
@@ -63,7 +66,8 @@ app/console partnermarketing:translations:push_base_translations
 
 ## How to pull translations
 
-This will pull all latest translations.
+This will pull all latest translations into `app/Resources/translations`.
+If base language translations were changed their values will be updated in `app/Resources/base-translations`.
 
 ```sh
 app/console partnermarketing:translations:pull_translations

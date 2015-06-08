@@ -253,4 +253,10 @@ page_title: "10 Melhores filmes"');
         $symfonyLanguageTag = $this->adapter->convertToSymfonyLanguageTag($languageTag);
         $this->assertEquals('pt', $symfonyLanguageTag);
     }
+
+    public function testSupportedLanguagesArePassed()
+    {
+        $supportedLanguages = $this->adapter->getSupportedLanguages();
+        $this->assertEquals(['en_GB', 'pt_PT'], $supportedLanguages);
+    }
 }

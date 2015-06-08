@@ -26,6 +26,7 @@ class OneSkyAdapter extends TranslationAdapter
         $this->oneSkyApiKey = $oneSkyApiKey;
         $this->oneSkyApiSecret = $oneSkyApiSecret;
         $this->baseLanguage = $baseLanguage;
+        $this->supportedLanguages = $supportedLanguages;
     }
 
     public function pushBaseTranslations()
