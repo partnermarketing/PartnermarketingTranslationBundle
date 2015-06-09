@@ -40,8 +40,7 @@ class OneSkyAdapter extends TranslationAdapter
                 $response = $client->files('upload', [
                     'project_id' => $this->oneSkyProjectId,
                     'file' => $filePath,
-                    // @todo change hardcoded format to: FileFormat::YML
-                    'file_format' => 'YML',
+                    'file_format' => FileFormat::YML,
                     'locale' => $this->getBaseLanguage()
                 ]);
             }
@@ -71,8 +70,7 @@ class OneSkyAdapter extends TranslationAdapter
 
 
     /**
-     * @todo need to dump all translations in all supported languages.
-     * waiting on project languages API to be fixed.
+     * Will ask adaptor for all files in all supported_languages and dump them to individual yml files.
      */
     public function dumpAllTranslationsToYamlFiles(){
         $files = $this->getBaseTranslationFiles();
