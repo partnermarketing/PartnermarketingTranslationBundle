@@ -89,7 +89,7 @@ class OneSkyAdapter extends TranslationAdapter
                     $existingContent = YamlParser::parse(file_get_contents($filePath));
                     $result = array_merge($existingContent, $yamlArray);
 
-                    $yaml = YamlParser::dump($result);
+                    $yaml = YamlParser::dump($result, 4);
                     file_put_contents($filePath, $yaml);
                 }
             }
@@ -130,7 +130,7 @@ class OneSkyAdapter extends TranslationAdapter
             mkdir($targetDir, 0777, true);
         }
 
-        $yaml = YamlParser::dump($phrases);
+        $yaml = YamlParser::dump($phrases, 4);
         file_put_contents($targetFile, $yaml);
     }
 
