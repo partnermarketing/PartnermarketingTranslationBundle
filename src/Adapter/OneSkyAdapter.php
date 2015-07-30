@@ -29,6 +29,13 @@ class OneSkyAdapter extends TranslationAdapter
         $this->supportedLanguages = $supportedLanguages;
     }
 
+    /**
+     * @doc https://github.com/onesky/api-documentation-platform/blob/master/resources/file.md#upload---upload-a-file
+     *
+     * By default we always deprecate previous strings by enforcing 'is_keeping_all_strings' => false.
+     *
+     * @return mixed
+     */
     public function pushBaseTranslations()
     {
         $files = $this->getBaseTranslationFiles();
@@ -41,7 +48,8 @@ class OneSkyAdapter extends TranslationAdapter
                     'project_id' => $this->oneSkyProjectId,
                     'file' => $filePath,
                     'file_format' => FileFormat::YML,
-                    'locale' => $this->getBaseLanguage()
+                    'locale' => $this->getBaseLanguage(),
+                    'is_keeping_all_strings' => false
                 ]);
             }
         }

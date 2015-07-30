@@ -60,7 +60,8 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
             'project_id' => 111,
             'file' => $this->baseTranslationsDir . '/books.yml',
             'file_format' => 'YML',
-            'locale' => 'en_GB'
+            'locale' => 'en_GB',
+            'is_keeping_all_strings' => false
         ];
 
         $oneSkyMockClient->expects($this->at(0))
