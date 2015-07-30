@@ -207,6 +207,39 @@ page_title: "10 Melhores filmes"');
     }
 
 
+    /**
+     * Test to ensure we can display what file has invalid format to be parsed.
+     *
+     * @expectedException \Partnermarketing\TranslationBundle\Exception\YMLParseException
+     */
+    public function testDumpAllTranslationsIntoYmlFilesInvalidYMLFile(){
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+
+        $methodParams = [
+            'project_id' => 111,
+            'locale' => 'en_GB',
+            'source_file_name' => 'books.yml'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+
+? "true"
+  : "Yes"
+  ? "false"
+  : "No"
+');
+        $this->adapter->setSupportedLanguages(['en_GB']);
+        $this->adapter->setClient($oneSkyMockClient);
+        $this->adapter->dumpAllTranslationsToYamlFiles();
+    }
+
+
     public function testGetBaseTranslationFiles()
     {
         $files = $this->adapter->getBaseTranslationFiles();

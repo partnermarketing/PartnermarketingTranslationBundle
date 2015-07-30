@@ -4,6 +4,7 @@ namespace Partnermarketing\TranslationBundle\Adapter;
 
 use Onesky\Api\Client;
 use Onesky\Api\FileFormat;
+use Partnermarketing\TranslationBundle\Exception\YMLParseException;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 
 class OneSkyAdapter extends TranslationAdapter
@@ -88,7 +89,11 @@ class OneSkyAdapter extends TranslationAdapter
             foreach ($files as $filePath) {
                 $fileName            = $this->getFilenameFromFilePath( $filePath );
                 $fileContent         = $this->getTranslationFile( $supportedLanguage, $fileName );
-                $yamlArray           = YamlParser::parse( $fileContent );
+                try {
+                    $yamlArray = YamlParser::parse( $fileContent );
+                } catch(\Exception $e) {
+                    throw new YMLParseException($e, $fileName);
+                }
                 $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename( $filePath );
                 if ($fileContent) {
                     $this->dumpToYaml( $yamlArray, $phraseCollectionKey, $supportedLanguage );
