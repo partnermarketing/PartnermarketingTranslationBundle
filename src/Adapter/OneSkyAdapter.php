@@ -165,8 +165,10 @@ class OneSkyAdapter extends TranslationAdapter
      */
     private function keepQuotesOnBooleanValue($yamlString)
     {
-        $yaml = preg_replace('/: (\byes\b)/i', "': "."$1"."'", $yamlString);
-        $yaml = preg_replace('/: (\bno\b)/i', "': "."$1"."'", $yaml);
+        $yaml = preg_replace('/: (\byes\b)/i', ": '"."$1"."'", $yamlString);
+        $yaml = preg_replace('/: (\bno\b)/i', ": '"."$1"."'", $yaml);
+        $yaml = preg_replace('/: (\bon\b)/i', ": '"."$1"."'", $yaml);
+        $yaml = preg_replace('/: (\boff\b)/i', ": '"."$1"."'", $yaml);
 
         return $yaml;
     }
