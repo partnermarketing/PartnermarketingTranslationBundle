@@ -269,6 +269,10 @@ inactive_test: No # comments are removed by yaml parser/dumper.
 notes: "Notes"
 no_more: "No more"
 more_no: "more No"
+active_a: On
+inactive_a: Off
+active_b: "On"
+inactive_b: "Off"
 ');
         $this->adapter->setSupportedLanguages(['pt_PT']);
         $this->adapter->setClient($oneSkyMockClient);
@@ -283,6 +287,10 @@ inactive_test: 'No'
 notes: Notes
 no_more: 'No more'
 more_no: 'more No'
+active_a: 'On'
+inactive_a: 'Off'
+active_b: 'On'
+inactive_b: 'Off'
 ";
         $this->assertEquals($expectedOutput, $existingContent);
 
