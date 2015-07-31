@@ -7,6 +7,7 @@ use Partnermarketing\TranslationBundle\Tests\Application\AppKernel;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Test the OneSkyAdapter service.
@@ -18,6 +19,7 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
     /** @var  \Partnermarketing\TranslationBundle\Adapter\OneSkyAdapter $adapter */
     protected $adapter;
     private $baseTranslationsDir;
+    private $translationsDirectory;
 
     public function setUp()
     {
@@ -30,15 +32,15 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->baseTranslationsDir = $this->kernel->getRootDir() . '/Resources/base-translations';
 
+        $this->translationsDirectory = $this->kernel->getRootDir() . '/Resources/translations';
         parent::setUp();
     }
 
 
     public function tearDown()
     {
-        $translationsDirectory = realpath($this->baseTranslationsDir.'/../translations/');
         $filesystem = new Filesystem();
-        $filesystem->remove($translationsDirectory);
+        $filesystem->remove($this->translationsDirectory);
 
         $this->kernel->shutdown();
         parent::tearDown();
@@ -237,6 +239,54 @@ page_title: "10 Melhores filmes"');
         $this->adapter->setSupportedLanguages(['en_GB']);
         $this->adapter->setClient($oneSkyMockClient);
         $this->adapter->dumpAllTranslationsToYamlFiles();
+    }
+
+
+    /**
+     * This test is required because OneSky is using YAML 1.1 and values like ['Yes', 'No']
+     */
+    public function testDumpAllTranslationsIntoYmlFilesKeepQuotesOnBooleanValues(){
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+
+        $methodParams = [
+            'project_id' => 111,
+            'locale' => 'pt_PT',
+            'source_file_name' => 'books.yml'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+
+active: "Yes"
+inactive: "No"
+active_test: Yes # this is how string becomes after yaml parser.
+inactive_test: No # comments are removed by yaml parser/dumper.
+notes: "Notes"
+no_more: "No more"
+more_no: "more No"
+');
+        $this->adapter->setSupportedLanguages(['pt_PT']);
+        $this->adapter->setClient($oneSkyMockClient);
+        $this->adapter->dumpAllTranslationsToYamlFiles();
+        $filePath = $this->translationsDirectory . '/books.pt_PT.yml';
+        $existingContent = file_get_contents($filePath);
+
+        $expectedOutput = "active: 'Yes'
+inactive: 'No'
+active_test: 'Yes'
+inactive_test: 'No'
+notes: Notes
+no_more: 'No more'
+more_no: 'more No'
+";
+        $this->assertEquals($expectedOutput, $existingContent);
+
+
     }
 
 
