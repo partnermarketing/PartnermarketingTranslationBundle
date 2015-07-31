@@ -103,6 +103,8 @@ class OneSkyAdapter extends TranslationAdapter
                     $result = array_merge($existingContent, $yamlArray);
 
                     $yaml = YamlParser::dump($result, 4);
+                    $yaml = $this->keepQuotesOnBooleanValue($yaml);
+
                     file_put_contents($filePath, $yaml);
                 }
             }
@@ -144,7 +146,31 @@ class OneSkyAdapter extends TranslationAdapter
         }
 
         $yaml = YamlParser::dump($phrases, 4);
+        $yaml = $this->keepQuotesOnBooleanValue($yaml);
+
         file_put_contents($targetFile, $yaml);
+    }
+
+    /**
+     * Workaround to ensure that [Yes, No] values keep the quotes ' around.
+     * This needs to happen for those words because OneSky is using YAML 1.1 spec and
+     * Yes is interpreted as true, so they will return true on next translations pull.
+     *
+     * YAML 1.1 spec for boolean: http://yaml.org/type/bool.html
+     * YAML 1.2 spec fot boolean: http://www.yaml.org/spec/1.2/spec.html#id2803629
+     *
+     * @param $yamlString
+     *
+     * @return mixed
+     */
+    private function keepQuotesOnBooleanValue($yamlString)
+    {
+        $yaml = preg_replace('/: (\byes\b)/i', ": '"."$1"."'", $yamlString);
+        $yaml = preg_replace('/: (\bno\b)/i', ": '"."$1"."'", $yaml);
+        $yaml = preg_replace('/: (\bon\b)/i', ": '"."$1"."'", $yaml);
+        $yaml = preg_replace('/: (\boff\b)/i', ": '"."$1"."'", $yaml);
+
+        return $yaml;
     }
 
 
