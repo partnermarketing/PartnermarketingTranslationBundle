@@ -102,7 +102,7 @@ class OneSkyAdapter extends TranslationAdapter
                     $existingContent = YamlParser::parse(file_get_contents($filePath));
                     $result = array_merge($existingContent, $yamlArray);
 
-                    $yaml = YamlParser::dump($result, 4);
+                    $yaml = YamlParser::dump($result, self::YAML_INLINE_AFTER);
                     $yaml = $this->keepQuotesOnBooleanValue($yaml);
 
                     file_put_contents($filePath, $yaml);
@@ -116,14 +116,14 @@ class OneSkyAdapter extends TranslationAdapter
 
 
     /**
-    +     * This method converts a language code provided by OneSky into Symfony 2 language code format.
-    +     * e.g: pt-PT -> pt_PT
-    +     *
-    +     * View more details about language tag here: http://en.wikipedia.org/wiki/IETF_language_tag
-    +     *
-    +     * @param $languageString
-    +     * @return string
-    +     */
+     * This method converts a language code provided by OneSky into Symfony 2 language code format.
+     * e.g: pt-PT -> pt_PT
+     *
+     * View more details about language tag here: http://en.wikipedia.org/wiki/IETF_language_tag
+     *
+     * @param $languageString
+     * @return string
+     */
     public function convertToSymfonyLanguageTag($languageString)
     {
         $languageParts = explode('-', $languageString);
@@ -145,7 +145,7 @@ class OneSkyAdapter extends TranslationAdapter
             mkdir($targetDir, 0777, true);
         }
 
-        $yaml = YamlParser::dump($phrases, 4);
+        $yaml = YamlParser::dump($phrases, self::YAML_INLINE_AFTER);
         $yaml = $this->keepQuotesOnBooleanValue($yaml);
 
         file_put_contents($targetFile, $yaml);
