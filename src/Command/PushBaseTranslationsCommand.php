@@ -4,6 +4,7 @@ namespace Partnermarketing\TranslationBundle\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -21,6 +22,13 @@ class PushBaseTranslationsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $adapter = $this->getContainer()->get('partnermarketing_translation.adapter');
+
+        $pullCommandName = 'partnermarketing:translations:pull_translations';
+        $app = $this->getApplication()->find($pullCommandName);
+        $input = new ArrayInput([
+            'command' => $pullCommandName
+        ]);
+        $app->run($input, $output);
 
         $result = $adapter->pushBaseTranslations();
 
