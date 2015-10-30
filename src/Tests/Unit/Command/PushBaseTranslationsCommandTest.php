@@ -9,13 +9,32 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class PushBaseTranslationsCommandTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \Partnermarketing\TranslationBundle\Tests\Application\AppKernel $kernel
+     * @var \Symfony\Component\Console\Command\Command $command push command
+     * @var \Partnermarketing\TranslationBundle\Adapter\TranslationAdapter $fakeAdapter translation adapter mock
+     */
+    protected $kernel,
+        $command,
+        $fakeAdapter;
+
     public function setUp()
     {
         $this->kernel = new AppKernel('test', true);
         $this->kernel->boot();
 
+        $pullCommandMock = $this->getMockBuilder('\Partnermarketing\TranslationBundle\Command\PullTranslationsCommand')
+            ->setMethods(['execute'])
+            ->getMock();
+        $pullCommandMock
+            ->expects($this->once())
+            ->method('execute');
+
         $application = new Application($this->kernel);
-        $application->add(new PushBaseTranslationsCommand());
+        $application->addCommands([
+            new PushBaseTranslationsCommand(),
+            $pullCommandMock
+        ]);
 
         $this->command = $application->find('partnermarketing:translations:push_base_translations');
 
