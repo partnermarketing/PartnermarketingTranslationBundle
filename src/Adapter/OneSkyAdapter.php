@@ -88,21 +88,21 @@ class OneSkyAdapter extends TranslationAdapter
         foreach($supportedLanguages as $supportedLanguage) {
             foreach ($files as $filePath) {
                 $fileName            = $this->getFilenameFromFilePath( $filePath );
-                $fileContent         = $this->getTranslationFile( $supportedLanguage, $fileName );
+                $adapterFileContent = $this->getTranslationFile( $supportedLanguage, $fileName );
                 try {
-                    $yamlArray = YamlParser::parse( $fileContent );
+                    $adapterTranslationsArray = YamlParser::parse( $adapterFileContent );
                 } catch(\Exception $e) {
                     throw new YMLParseException($e, $fileName);
                 }
                 $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename( $filePath );
-                if ($fileContent) {
-                    $this->dumpToYaml( $yamlArray, $phraseCollectionKey, $supportedLanguage );
+                if ($adapterFileContent) {
+                    $this->dumpToYaml( $adapterTranslationsArray, $phraseCollectionKey, $supportedLanguage );
                 }
                 if($supportedLanguage === $this->getBaseLanguage()) {
-                    $existingContent = YamlParser::parse(file_get_contents($filePath));
-                    $result = array_merge($existingContent, $yamlArray);
+                    $existingTranslations = YamlParser::parse(file_get_contents($filePath));
+                    $mergedTranslations = array_merge($existingTranslations, $adapterTranslationsArray);
 
-                    $yaml = YamlParser::dump($result, self::YAML_INLINE_AFTER);
+                    $yaml = YamlParser::dump($mergedTranslations, self::YAML_INLINE_AFTER);
                     $yaml = $this->keepQuotesOnBooleanValue($yaml);
 
                     file_put_contents($filePath, $yaml);
