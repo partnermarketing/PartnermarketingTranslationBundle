@@ -14,9 +14,9 @@ class PushBaseTranslationsCommandTest extends \PHPUnit_Framework_TestCase
      * @var \Symfony\Component\Console\Command\Command $command push command
      * @var \Partnermarketing\TranslationBundle\Adapter\TranslationAdapter $fakeAdapter translation adapter mock
      */
-    protected $kernel,
-        $command,
-        $fakeAdapter;
+    private $kernel;
+    private $command;
+    private $fakeAdapter;
 
     public function setUp()
     {

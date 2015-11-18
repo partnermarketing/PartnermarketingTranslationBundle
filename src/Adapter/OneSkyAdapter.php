@@ -7,6 +7,7 @@ use Onesky\Api\FileFormat;
 use Partnermarketing\TranslationBundle\Exception\YMLParseException;
 use Partnermarketing\TranslationBundle\Utilities\HasUtilitiesTrait;
 use Symfony\Component\Yaml\Yaml as YamlParser;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 
 class OneSkyAdapter extends TranslationAdapter
@@ -43,8 +44,8 @@ class OneSkyAdapter extends TranslationAdapter
      */
     public function pushBaseTranslations()
     {
+        $response = [];
         $files = $this->getBaseTranslationFiles();
-
         $client = $this->getClient();
 
         if(count($files) > 0) {
@@ -95,13 +96,13 @@ class OneSkyAdapter extends TranslationAdapter
                 $adapterFileContent = $this->getTranslationFile( $supportedLanguage, $fileName );
                 try {
                     $adapterTranslationsArray = YamlParser::parse( $adapterFileContent );
-                } catch(\Exception $e) {
+                } catch(ParseException $e) {
                     throw new YMLParseException($e, $fileName);
                 }
 
                 $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename( $baseTranslationFilePath );
 
-                if (count($adapterTranslationsArray) > 0) {
+                if (is_array($adapterTranslationsArray) && count($adapterTranslationsArray) > 0) {
                     $this->ksortMultiDimensional($adapterTranslationsArray);
                     $this->dumpToYaml( $adapterTranslationsArray, $phraseCollectionKey, $supportedLanguage );
                 } else {
@@ -187,6 +188,11 @@ class OneSkyAdapter extends TranslationAdapter
     }
 
 
+    /**
+     * @param $filenames
+     *
+     * @return array
+     */
     public function getPhraseCollectionsFromFilenames($filenames)
     {
         $collections = [];
@@ -199,10 +205,19 @@ class OneSkyAdapter extends TranslationAdapter
         return $collections;
     }
 
+    /**
+     *
+     * @param $filename
+     *
+     * @return array
+     */
     public function getPhrasesFromFilename($filename)
     {
-        $parsed = YamlParser::parse(file_get_contents($filename));
-        $phrases = $this->yamlArrayToDottedPhrasesArray($parsed);
+        $yamlPhrases = YamlParser::parse(file_get_contents($filename));
+        if(!is_array($yamlPhrases)) {
+            $yamlPhrases = [];
+        }
+        $phrases = $this->yamlArrayToDottedPhrasesArray($yamlPhrases);
 
         return $phrases;
     }

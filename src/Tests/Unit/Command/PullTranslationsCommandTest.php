@@ -9,6 +9,10 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class PullTranslationsCommandTest extends \PHPUnit_Framework_TestCase
 {
+    private $kernel;
+    private $fakeAdapter;
+    private $command;
+
     public function setUp()
     {
         $this->kernel = new AppKernel('test', true);
