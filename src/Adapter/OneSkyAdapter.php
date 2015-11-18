@@ -8,6 +8,7 @@ use Partnermarketing\TranslationBundle\Exception\YMLParseException;
 use Partnermarketing\TranslationBundle\Utilities\HasUtilitiesTrait;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 
+
 class OneSkyAdapter extends TranslationAdapter
 {
     use HasUtilitiesTrait;
@@ -89,29 +90,35 @@ class OneSkyAdapter extends TranslationAdapter
         $supportedLanguages = $this->getSupportedLanguages();
 
         foreach($supportedLanguages as $supportedLanguage) {
-            foreach ($files as $filePath) {
-                $fileName            = $this->getFilenameFromFilePath( $filePath );
+            foreach ($files as $baseTranslationFilePath) {
+                $fileName            = $this->getFilenameFromFilePath( $baseTranslationFilePath );
                 $adapterFileContent = $this->getTranslationFile( $supportedLanguage, $fileName );
                 try {
                     $adapterTranslationsArray = YamlParser::parse( $adapterFileContent );
                 } catch(\Exception $e) {
                     throw new YMLParseException($e, $fileName);
                 }
-                $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename( $filePath );
-                if ($adapterFileContent) {
+
+                $phraseCollectionKey = $this->getPhraseCollectionKeyFromFilename( $baseTranslationFilePath );
+
+                if (count($adapterTranslationsArray) > 0) {
                     $this->ksortMultiDimensional($adapterTranslationsArray);
                     $this->dumpToYaml( $adapterTranslationsArray, $phraseCollectionKey, $supportedLanguage );
+                } else {
+                    // Ensure adapterTranslationsArray is an array.
+                    $adapterTranslationsArray = [];
                 }
+                // This is only execute for base language.
                 if($supportedLanguage === $this->getBaseLanguage()) {
-                    $existingTranslations = YamlParser::parse(file_get_contents($filePath));
-                    $mergedTranslations = array_merge($existingTranslations, $adapterTranslationsArray);
+                    $existingTranslations = YamlParser::parse(file_get_contents($baseTranslationFilePath));
+                    $mergedTranslations = array_replace_recursive($existingTranslations, $adapterTranslationsArray);
 
                     $this->ksortMultiDimensional($mergedTranslations);
 
                     $yaml = YamlParser::dump($mergedTranslations, self::YAML_INLINE_AFTER);
                     $yaml = $this->keepQuotesOnBooleanValue($yaml);
 
-                    file_put_contents($filePath, $yaml);
+                    file_put_contents($baseTranslationFilePath, $yaml);
                 }
             }
         }
