@@ -10,9 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PushBaseTranslationsCommand extends ContainerAwareCommand
 {
-    protected $container,
-        $output,
-        $input;
+    protected $container;
+    protected $output;
+    protected $input;
 
     protected function configure()
     {
