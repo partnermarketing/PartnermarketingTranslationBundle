@@ -8,6 +8,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Parser;
 
 /**
  * Test the OneSkyAdapter service.
@@ -20,6 +21,17 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
     protected $adapter;
     private $baseTranslationsDir;
     private $translationsDirectory;
+
+    private $bookBaseTranslations = [
+        'book_1' => [
+            'title' => "Bunnies for Dummies"
+        ],
+        'book_2' => [
+            'title' => "Teddy Bear Stories",
+            'content' => "Teddy Bear is hidden"
+        ]
+    ];
+    private $movieBaseTranslations = [];
 
     public function setUp()
     {
@@ -36,6 +48,14 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
     }
 
+
+    private function restoreBaseTranslationFiles()
+    {
+        $booksFullFilePath = $this->baseTranslationsDir . '/books.yml';
+
+        $booksYaml = Yaml::dump($this->bookBaseTranslations, OneSkyAdapter::YAML_INLINE_AFTER);
+        file_put_contents($booksFullFilePath, $booksYaml);
+    }
 
     public function tearDown()
     {
@@ -147,6 +167,64 @@ page_title: "10 Best Movies"');
         $this->adapter->setClient($oneSkyMockClient);
         $this->adapter->dumpAllTranslationsToYamlFiles();
     }
+
+
+    public function testDumpAllTranslationsIntoYmlFilesWithoutDeletingExistingTranslations(){
+        $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+
+        $methodParams = [
+            'project_id' => 111,
+            'locale' => 'en_GB',
+            'source_file_name' => 'books.yml'
+        ];
+
+        $oneSkyMockClient->expects($this->at(0))
+                         ->method('__call')
+                         ->with($this->equalTo('translations'), $this->equalTo(['export', $methodParams]))
+                         ->willReturn('---
+book_2:
+    title: Teddy Bear Stories Updated
+
+book_3:
+    title: Stories about bacon
+    content: Out of bacon');
+
+
+        $this->adapter->setSupportedLanguages(['en_GB']);
+        $this->adapter->setClient($oneSkyMockClient);
+
+        $this->restoreBaseTranslationFiles();
+
+        $existingTranslations = Yaml::parse(file_get_contents($this->baseTranslationsDir.'/books.yml'));
+
+        $this->assertEquals($this->bookBaseTranslations, $existingTranslations);
+
+        $this->adapter->dumpAllTranslationsToYamlFiles();
+
+        $updatedTranslations = Yaml::parse(file_get_contents($this->baseTranslationsDir.'/books.yml'));
+
+        $expectedTranslationsAfterUpdate = [
+            'book_1' => [
+                'title' => "Bunnies for Dummies"
+            ],
+            'book_2' => [
+                'title' => "Teddy Bear Stories Updated",
+                'content' => 'Teddy Bear is hidden'
+            ],
+            'book_3' => [
+                'title' => "Stories about bacon",
+                'content' => "Out of bacon"
+            ]
+        ];
+
+        $this->assertEquals($expectedTranslationsAfterUpdate, $updatedTranslations);
+
+        $this->restoreBaseTranslationFiles();
+    }
+
 
     public function testDumpAllTranslationsIntoYmlFilesWithMoreThenOneSupportedLanguage(){
         $oneSkyMockClient = $this->getMockBuilder('Onesky\Api\Client')
@@ -320,7 +398,7 @@ inactive_b: 'Off'
     {
         $phrases = $this->adapter->getPhrasesFromFilename($this->baseTranslationsDir . '/books.yml');
 
-        $this->assertCount(2, $phrases);
+        $this->assertCount(3, $phrases);
         $this->assertEquals('Bunnies for Dummies', $phrases['book_1.title']['string']);
     }
 
