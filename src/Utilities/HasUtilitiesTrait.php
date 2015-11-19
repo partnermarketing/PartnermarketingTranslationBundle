@@ -7,7 +7,7 @@ trait HasUtilitiesTrait {
     /**
      * @param array $input
      */
-    function ksortMultiDimensional(array &$input) {
+    public function ksortMultiDimensional(array &$input) {
         ksort($input);
 
         foreach ($input as $key => &$value) {
