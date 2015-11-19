@@ -2,13 +2,12 @@
 
 namespace Partnermarketing\TranslationBundle\Tests\Unit\Utilities;
 
-use Partnermarketing\TranslationBundle\Utilities\HasUtilitiesTrait;
 use Partnermarketing\TranslationBundle\Utilities\HasUtilitiesTraitImplementation;
 
 class HasUtilitiesTraitImplementationTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var HasUtilitiesTrait
+     * @var HasUtilitiesTraitImplementation
      */
     private $traitObject;
 
@@ -37,9 +36,11 @@ class HasUtilitiesTraitImplementationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $unsortedArray);
     }
 
-
-
-
+    /**
+     * Method to provide test cases to sort single dimension arrays.
+     *
+     * @return array
+     */
     public function singleDimensionProvider()
     {
         return [
@@ -61,7 +62,11 @@ class HasUtilitiesTraitImplementationTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-
+    /**
+     * Method to provide test cases to sort multi dimension arrays.
+     *
+     * @return array
+     */
     public function multiDimensionProvider()
     {
         $multi1 = [
