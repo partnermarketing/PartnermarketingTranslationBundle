@@ -359,16 +359,16 @@ inactive_b: "Off"
         $existingContent = file_get_contents($filePath);
 
         $expectedOutput = "active: 'Yes'
-inactive: 'No'
-active_test: 'Yes'
-inactive_test: 'No'
-notes: Notes
-no_more: 'No more'
-more_no: 'more No'
 active_a: 'On'
-inactive_a: 'Off'
 active_b: 'On'
+active_test: 'Yes'
+inactive: 'No'
+inactive_a: 'Off'
 inactive_b: 'Off'
+inactive_test: 'No'
+more_no: 'more No'
+no_more: 'No more'
+notes: Notes
 ";
         $this->assertEquals($expectedOutput, $existingContent);
 
