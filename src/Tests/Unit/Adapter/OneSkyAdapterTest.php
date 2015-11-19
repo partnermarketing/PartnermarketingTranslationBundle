@@ -31,7 +31,9 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
             'content' => "Teddy Bear is hidden"
         ]
     ];
-    private $movieBaseTranslations = [];
+    private $movieBaseTranslations = [
+        'page_title' =>'10 Best Movies'
+    ];
 
     public function setUp()
     {
@@ -52,9 +54,12 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
     private function restoreBaseTranslationFiles()
     {
         $booksFullFilePath = $this->baseTranslationsDir . '/books.yml';
-
         $booksYaml = Yaml::dump($this->bookBaseTranslations, OneSkyAdapter::YAML_INLINE_AFTER);
         file_put_contents($booksFullFilePath, $booksYaml);
+
+        $moviesFullFilePath = $this->baseTranslationsDir . '/pages/movies.yml';
+        $moviesYaml = Yaml::dump($this->movieBaseTranslations, OneSkyAdapter::YAML_INLINE_AFTER);
+        file_put_contents($moviesFullFilePath, $moviesYaml);
     }
 
     public function tearDown()
