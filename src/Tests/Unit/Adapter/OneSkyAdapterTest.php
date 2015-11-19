@@ -31,7 +31,9 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
             'content' => "Teddy Bear is hidden"
         ]
     ];
-    private $movieBaseTranslations = [];
+    private $movieBaseTranslations = [
+        'page_title' =>'10 Best Movies'
+    ];
 
     public function setUp()
     {
@@ -52,9 +54,12 @@ class OneSkyAdapterTest extends \PHPUnit_Framework_TestCase
     private function restoreBaseTranslationFiles()
     {
         $booksFullFilePath = $this->baseTranslationsDir . '/books.yml';
-
         $booksYaml = Yaml::dump($this->bookBaseTranslations, OneSkyAdapter::YAML_INLINE_AFTER);
         file_put_contents($booksFullFilePath, $booksYaml);
+
+        $moviesFullFilePath = $this->baseTranslationsDir . '/pages/movies.yml';
+        $moviesYaml = Yaml::dump($this->movieBaseTranslations, OneSkyAdapter::YAML_INLINE_AFTER);
+        file_put_contents($moviesFullFilePath, $moviesYaml);
     }
 
     public function tearDown()
@@ -359,16 +364,16 @@ inactive_b: "Off"
         $existingContent = file_get_contents($filePath);
 
         $expectedOutput = "active: 'Yes'
-inactive: 'No'
-active_test: 'Yes'
-inactive_test: 'No'
-notes: Notes
-no_more: 'No more'
-more_no: 'more No'
 active_a: 'On'
-inactive_a: 'Off'
 active_b: 'On'
+active_test: 'Yes'
+inactive: 'No'
+inactive_a: 'Off'
 inactive_b: 'Off'
+inactive_test: 'No'
+more_no: 'more No'
+no_more: 'No more'
+notes: Notes
 ";
         $this->assertEquals($expectedOutput, $existingContent);
 
