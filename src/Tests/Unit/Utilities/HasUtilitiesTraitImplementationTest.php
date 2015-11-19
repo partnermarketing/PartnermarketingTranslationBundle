@@ -2,10 +2,14 @@
 
 namespace Partnermarketing\TranslationBundle\Tests\Unit\Utilities;
 
+use Partnermarketing\TranslationBundle\Utilities\HasUtilitiesTrait;
 use Partnermarketing\TranslationBundle\Utilities\HasUtilitiesTraitImplementation;
 
 class HasUtilitiesTraitImplementationTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var HasUtilitiesTrait
+     */
     private $traitObject;
 
     public function setUp()
@@ -28,12 +32,12 @@ class HasUtilitiesTraitImplementationTest extends \PHPUnit_Framework_TestCase
      */
     public function testKsortMultiDimensionalSortMultiDimension($unsortedArray, $expected)
     {
-
         $this->traitObject->ksortMultiDimensional($unsortedArray);
 
-
-        $this->assertEquals($expected, $unsortedArray);
+        $this->assertSame($expected, $unsortedArray);
     }
+
+
 
 
     public function singleDimensionProvider()
@@ -79,13 +83,31 @@ class HasUtilitiesTraitImplementationTest extends \PHPUnit_Framework_TestCase
             'page2' => ['section2' => 'page.section2']
         ];
 
+        $multi3 = [
+            '_campaigns_dropdown' => [
+                'campaigns' => 'Campaigns',
+                'title' => 'Campaigns and Assets',
+                'campaign_builder_grouping' => 'Campaign builder',
+                'create_campaign' => 'Create a new campaign',
+                'my_activity' => 'My activity'
+            ]
+        ];
+
+        $multiExpected3 = [
+            '_campaigns_dropdown' => [
+                'campaign_builder_grouping' => 'Campaign builder',
+                'campaigns' => 'Campaigns',
+                'create_campaign' => 'Create a new campaign',
+                'my_activity' => 'My activity',
+                'title' => 'Campaigns and Assets'
+            ]
+        ];
 
         return [
             [$multi1, $multiExpected1],
-            [$multi2, $multiExpected2]
+            [$multi2, $multiExpected2],
+            [$multi3, $multiExpected3]
         ];
     }
-
-
 
 }
