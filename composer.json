@@ -14,7 +14,7 @@
     },
     "require-dev": {
         "symfony/symfony": "2.*",
-        "phpunit/phpunit": ">=3.7",
-        "johnkary/phpunit-speedtrap": "dev-master"
+        "phpunit/phpunit": "~3.7",
+        "johnkary/phpunit-speedtrap": "~1.0"
     }
 }
